@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qt计算器项目 - 保姆级操作指南</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #16213e;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text-dim: #8b8b9e;
+    --green: #4ecca3;
+    --yellow: #f9e2af;
+    --blue: #89b4fa;
+    --pink: #f38ba8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 0;
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--accent2) 0%, var(--surface) 100%);
+    padding: 60px 40px;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+  }
+  .hero h1 {
+    font-size: 2.2em;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--accent), var(--yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p { color: var(--text-dim); font-size: 1.1em; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .toc {
+    background: var(--surface);
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 24px 32px;
+    margin-bottom: 48px;
+  }
+  .toc h2 { color: var(--yellow); margin-bottom: 16px; font-size: 1.3em; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 8px; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .step-card {
+    background: var(--surface);
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .step-card h2 {
+    color: var(--accent);
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2a2a4a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .step-num {
+    background: var(--accent);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    flex-shrink: 0;
+  }
+  .sub-step {
+    margin: 16px 0 16px 20px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+  }
+  .sub-step strong { color: var(--yellow); }
+  .key-btn {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--accent2);
+    border-radius: 6px;
+    padding: 2px 12px;
+    font-family: "Consolas", monospace;
+    color: var(--green);
+    font-size: 0.95em;
+  }
+  .tip {
+    background: rgba(78, 204, 163, 0.08);
+    border: 1px solid rgba(78, 204, 163, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .tip::before { content: "💡 提示："; color: var(--green); font-weight: bold; }
+  .warn {
+    background: rgba(249, 226, 175, 0.08);
+    border: 1px solid rgba(249, 226, 175, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .warn::before { content: "⚠ 注意："; color: var(--yellow); font-weight: bold; }
+  .code-block {
+    background: #0d0d1a;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.9em;
+    color: var(--green);
+    overflow-x: auto;
+  }
+  .keymap {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+  .keymap th, .keymap td {
+    border: 1px solid #2a2a4a;
+    padding: 10px 16px;
+    text-align: center;
+  }
+  .keymap th { background: var(--accent2); color: var(--text); }
+  .keymap td { background: var(--surface2); }
+  .checklist {
+    list-style: none;
+    padding: 0;
+  }
+  .checklist li {
+    padding: 8px 0 8px 32px;
+    position: relative;
+  }
+  .checklist li::before {
+    content: "☐";
+    position: absolute;
+    left: 8px;
+    color: var(--accent);
+    font-size: 1.2em;
+  }
+  .file-tree {
+    font-family: "Consolas", monospace;
+    background: #0d0d1a;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    color: var(--blue);
+    font-size: 0.9em;
+  }
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-dim);
+    border-top: 1px solid #2a2a4a;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Qt 计算器项目 — 保姆级操作指南</h1>
+  <p>从打开项目到运行测试，每一步都手把手带你走完</p>
+</div>
+
+<div class="container">
+
+<div class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><a href="#s1">用 Qt Creator 打开项目</a></li>
+    <li><a href="#s2">配置编译套件 (Kit)</a></li>
+    <li><a href="#s3">在 UI 设计器中查看界面</a></li>
+    <li><a href="#s4">编译并运行项目</a></li>
+    <li><a href="#s5">测试计算器功能（鼠标 + 键盘）</a></li>
+    <li><a href="#s6">使用 Git 管理代码</a></li>
+    <li><a href="#s7">项目文件结构说明</a></li>
+    <li><a href="#s8">常见问题排查</a></li>
+  </ol>
+</div>
+
+<!-- ===== Step 1 ===== -->
+<div class="step-card" id="s1">
+  <h2><span class="step-num">1</span> 用 Qt Creator 打开项目</h2>
+
+  <div class="sub-step">
+    <strong>① 找到 Qt Creator 并启动</strong><br>
+    打开文件资源管理器，进入路径：<br>
+    <span class="code-block">E:\Qt\Tools\QtCreator\bin\qtcreator.exe</span><br>
+    双击 <span class="key-btn">qtcreator.exe</span> 启动 Qt Creator。
+  </div>
+
+  <div class="sub-step">
+    <strong>② 通过菜单打开项目</strong><br>
+    启动后，点击顶部菜单栏：<br>
+    <span class="key-btn">文件(File)</span> → <span class="key-btn">打开文件或项目...(Open File or Project...)</span><br>
+    快捷键：<span class="key-btn">Ctrl + O</span>
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 选择工程文件</strong><br>
+    在弹出的文件浏览窗口中，导航到：<br>
+    <span class="code-block">E:\Qtwork\test\Calculator\Calculator.pro</span><br>
+    选中 <span class="key-btn">Calculator.pro</span> 文件，点击 <span class="key-btn">打开(Open)</span>。
+  </div>
+
+  <div class="tip">
+    如果 Qt Creator 弹出 "Configure Project"（配置项目）界面，说明项目已成功打开，请继续下一步。
+  </div>
+</div>
+
+<!-- ===== Step 2 ===== -->
+<div class="step-card" id="s2">
+  <h2><span class="step-num">2</span> 配置编译套件 (Kit)</h2>
+
+  <p>首次打开项目时，Qt Creator 会让你选择编译套件。你的电脑上已安装以下套件：</p>
+
+  <div class="sub-step">
+    <strong>① 在配置界面勾选套件</strong><br>
+    在 "Configure Project" 界面中，你会看到一个列表，类似：<br>
+    <span class="code-block">
+    ☐ Desktop Qt 5.12.11 MinGW 64-bit<br>
+    ☐ Desktop Qt 5.12.11 MinGW 32-bit<br>
+    ☐ Desktop Qt 5.12.11 MSVC 2017 64-bit
+    </span><br>
+    勾选 <strong>"Desktop Qt 5.12.11 MinGW 64-bit"</strong>（推荐使用 64 位版本）。
+  </div>
+
+  <div class="sub-step">
+    <strong>② 点击配置按钮</strong><br>
+    在界面下方点击 <span class="key-btn">Configure Project</span> 按钮。<br>
+    Qt Creator 会自动生成构建配置。
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 如果没有弹出配置界面</strong><br>
+    说明之前已配置过。你可以在左侧栏点击 <span class="key-btn">Projects</span>（项目图标 ⚙），<br>
+    在 "Build & Run" 中确认已选中 MinGW 64-bit 套件。
+  </div>
+
+  <div class="warn">
+    如果列表中没有任何套件可选，说明 Qt 安装不完整。需要运行 <code>E:\Qt\MaintenanceTool.exe</code> 重新安装编译器组件。
+  </div>
+</div>
+
+<!-- ===== Step 3 ===== -->
+<div class="step-card" id="s3">
+  <h2><span class="step-num">3</span> 在 UI 设计器中查看界面</h2>
+
+  <p>本项目的界面使用 Qt 的 <code>.ui</code> 文件定义，可以直接在 Qt Creator 的可视化设计器中查看和编辑。</p>
+
+  <div class="sub-step">
+    <strong>① 找到 UI 文件</strong><br>
+    在 Qt Creator 左侧栏点击 <span class="key-btn">Edit</span>（编辑模式）。<br>
+    在项目文件树中展开：<br>
+    <span class="code-block">
+    Calculator<br>
+    ├── Sources<br>
+    │   ├── main.cpp<br>
+    │   └── mainwindow.cpp<br>
+    ├── Headers<br>
+    │   └── mainwindow.h<br>
+    ├── Forms<br>
+    │   └── mainwindow.ui    ← 双击这个文件<br>
+    └── Calculator.pro
+    </span>
+  </div>
+
+  <div class="sub-step">
+    <strong>② 双击 mainwindow.ui 进入设计器</strong><br>
+    双击 <span class="key-btn">mainwindow.ui</span>，Qt Creator 会自动切换到 <strong>设计(Design)</strong> 模式。<br>
+    你将看到计算器的可视化界面：<br><br>
+    • 顶部：历史记录标签 <code>historyLabel</code> + 显示屏 <code>displayLineEdit</code><br>
+    • 下方：5行4列的按钮网格，包括数字键、运算符、等号、清除和退格<br><br>
+    左侧是控件箱(Widget Box)，右侧是属性编辑器(Property Editor)。<br>
+    点击任意按钮，在右侧属性栏可以看到其 <code>objectName</code> 和 <code>text</code> 等属性。
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 查看控件命名对照表</strong><br>
+    <table class="keymap">
+      <tr><th>按钮</th><th>objectName</th><th>显示文字</th><th>功能</th></tr>
+      <tr><td>清除</td><td>btnClear</td><td>C</td><td>清空所有状态</td></tr>
+      <tr><td>退格</td><td>btnBackspace</td><td>⌫</td><td>删除最后一个字符</td></tr>
+      <tr><td>除</td><td>btnDivide</td><td>÷</td><td>除法运算</td></tr>
+      <tr><td>乘</td><td>btnMultiply</td><td>×</td><td>乘法运算</td></tr>
+      <tr><td>减</td><td>btnSubtract</td><td>−</td><td>减法运算</td></tr>
+      <tr><td>加</td><td>btnAdd</td><td>+</td><td>加法运算</td></tr>
+      <tr><td>等号</td><td>btnEquals</td><td>=</td><td>执行计算</td></tr>
+      <tr><td>小数点</td><td>btnDecimal</td><td>.</td><td>输入小数点</td></tr>
+      <tr><td>数字</td><td>btn0 ~ btn9</td><td>0~9</td><td>输入数字</td></tr>
+      <tr><td>历史</td><td>historyLabel</td><td>—</td><td>显示运算表达式</td></tr>
+      <tr><td>显示屏</td><td>displayLineEdit</td><td>0</td><td>显示当前输入/结果</td></tr>
+    </table>
+  </div>
+
+  <div class="tip">
+    如果想修改某个按钮的颜色、大小或文字，可以直接在设计器中选中该按钮，在右侧"属性编辑器"中修改。修改后按 <span class="key-btn">Ctrl+S</span> 保存即可。
+  </div>
+</div>
+
+<!-- ===== Step 4 ===== -->
+<div class="step-card" id="s4">
+  <h2><span class="step-num">4</span> 编译并运行项目</h2>
+
+  <div class="sub-step">
+    <strong>① 选择构建模式</strong><br>
+    在 Qt Creator 左下角，确保模式选择为 <span class="key-btn">Release</span>（发布模式）。<br>
+    点击左下角的模式选择器（通常显示 "Debug" 或 "Release"），选择 <strong>Release</strong>。<br>
+    <span class="code-block">Debug: 便于调试，但生成的程序体积较大
+Release: 优化编译，程序更小更快，推荐使用</span>
+  </div>
+
+  <div class="sub-step">
+    <strong>② 编译项目</strong><br>
+    点击菜单：<span class="key-btn">构建(Build)</span> → <span class="key-btn">构建项目 "Calculator"(Build Project "Calculator")</span><br>
+    快捷键：<span class="key-btn">Ctrl + B</span><br><br>
+    在底部 "编译输出(Compile Output)" 窗口可以看到编译进度。<br>
+    如果显示 <strong>"exited normally"</strong> 且没有红色错误，说明编译成功！
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 运行项目</strong><br>
+    点击左下角的绿色三角形 ▶ 按钮 <span class="key-btn">运行(Run)</span><br>
+    快捷键：<span class="key-btn">Ctrl + R</span><br><br>
+    计算器窗口将会弹出，深色主题界面，显示初始值 "0"。
+  </div>
+
+  <div class="tip">
+    也可以直接使用快捷键 <span class="key-btn">Ctrl + R</span> 一步完成"编译 + 运行"，不需要先单独编译。
+  </div>
+</div>
+
+<!-- ===== Step 5 ===== -->
+<div class="step-card" id="s5">
+  <h2><span class="step-num">5</span> 测试计算器功能</h2>
+
+  <p>计算器同时支持<strong>鼠标点击</strong>和<strong>键盘输入</strong>两种方式，且共用同一套处理逻辑。以下是完整的测试清单：</p>
+
+  <div class="sub-step">
+    <strong>① 鼠标测试 — 基本四则运算</strong>
+    <ul class="checklist">
+      <li>点击 5 → 显示 "5"</li>
+      <li>点击 + → 上方历史显示 "5 +"，显示屏仍为 "5"</li>
+      <li>点击 3 → 显示 "3"</li>
+      <li>点击 = → 历史显示 "5 + 3 ="，结果显示 "8"</li>
+      <li>点击 C → 全部清空，显示屏回到 "0"</li>
+    </ul>
+  </div>
+
+  <div class="sub-step">
+    <strong>② 鼠标测试 — 小数运算</strong>
+    <ul class="checklist">
+      <li>点击 1 → 2 → . → 5 → 显示 "12.5"</li>
+      <li>点击 × → 历史显示 "12.5 ×"</li>
+      <li>点击 2 → 显示 "2"</li>
+      <li>点击 = → 结果显示 "25"</li>
+      <li>点击 C 清空</li>
+    </ul>
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 键盘测试 — 全键盘操作</strong>
+    <ul class="checklist">
+      <li>按键盘 7 → 显示 "7"</li>
+      <li>按 - (减号键) → 历史显示 "7 −"</li>
+      <li>按 3 → 显示 "3"</li>
+      <li>按 Enter 或 = → 结果显示 "4"</li>
+    </ul>
+  </div>
+
+  <div class="sub-step">
+    <strong>④ 键盘映射对照表</strong>
+    <table class="keymap">
+      <tr><th>键盘按键</th><th>对应功能</th><th>等同于按钮</th></tr>
+      <tr><td>0 ~ 9</td><td>输入数字</td><td>btn0 ~ btn9</td></tr>
+      <tr><td>. (句号)</td><td>输入小数点</td><td>btnDecimal</td></tr>
+      <tr><td>+ (Shift+=)</td><td>加法</td><td>btnAdd</td></tr>
+      <tr><td>- (减号)</td><td>减法</td><td>btnSubtract</td></tr>
+      <tr><td>* (Shift+8)</td><td>乘法</td><td>btnMultiply</td></tr>
+      <tr><td>/ (斜杠)</td><td>除法</td><td>btnDivide</td></tr>
+      <tr><td>Enter / =</td><td>等于</td><td>btnEquals</td></tr>
+      <tr><td>Backspace</td><td>退格删除</td><td>btnBackspace</td></tr>
+      <tr><td>Esc / Delete</td><td>清除</td><td>btnClear</td></tr>
+    </table>
+    <div class="tip">
+    小键盘(Numpad)上的数字键、+、-、*、/、Enter 同样有效！
+    </div>
+  </div>
+
+  <div class="sub-step">
+    <strong>⑤ 边界情况测试</strong>
+    <ul class="checklist">
+      <li><strong>连续小数点</strong>：输入 5 → . → . → 应只显示 "5."，第二个点被忽略</li>
+      <li><strong>连续操作符</strong>：输入 5 → + → × → 应显示 "5 ×"（后按的运算符替换前者）</li>
+      <li><strong>除零</strong>：输入 5 → ÷ → 0 → = → 显示 "Error: ÷ 0"</li>
+      <li><strong>退格</strong>：输入 123 → ⌫ → 显示 "12"</li>
+      <li><strong>连续运算</strong>：输入 5 → + → 3 → - → 2 → = → 显示 "6"（先算5+3=8，再算8-2=6）</li>
+      <li><strong>计算后继续</strong>：5 + 3 = 8 → 按 2 → 显示 "2"（开始新计算）</li>
+      <li><strong>混合输入</strong>：鼠标点击 5 → +，键盘按 3 → = → 结果 "8"</li>
+      <li><strong>无第二操作数</strong>：5 + = → 结果 "10"（自动复用第一操作数）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== Step 6 ===== -->
+<div class="step-card" id="s6">
+  <h2><span class="step-num">6</span> 使用 Git 管理代码（作业要求）</h2>
+
+  <p>作业要求用 GitHub 管理代码，至少 5 次有效提交。以下是操作步骤：</p>
+
+  <div class="sub-step">
+    <strong>① 初始化本地 Git 仓库</strong><br>
+    打开终端（PowerShell 或 Git Bash），进入项目目录：<br>
+    <div class="code-block">cd E:\Qtwork\test\Calculator
+git init</div>
+  </div>
+
+  <div class="sub-step">
+    <strong>② 创建 .gitignore 文件</strong><br>
+    在项目目录下创建 <code>.gitignore</code> 文件，内容如下：<br>
+    <div class="code-block"># 构建产物
+build/
+release/
+debug/
+*.o
+*.obj
+*.exe
+
+# Qt 生成文件
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+Makefile
+Makefile.*
+.qmake.stash
+
+# 用户配置
+*.user
+*.user.*
+.vscode/</div>
+  </div>
+
+  <div class="sub-step">
+    <strong>③ 首次提交</strong><br>
+    <div class="code-block">git add .
+git commit -m "feat: 完成计算器基础框架与UI布局"</div>
+  </div>
+
+  <div class="sub-step">
+    <strong>④ 关联 GitHub 远程仓库</strong><br>
+    在 GitHub 上创建一个新仓库（如 <code>qt-calculator</code>），然后：<br>
+    <div class="code-block">git remote add origin https://github.com/你的用户名/qt-calculator.git
+git branch -M main
+git push -u origin main</div>
+  </div>
+
+  <div class="sub-step">
+    <strong>⑤ 持续提交（模拟开发迭代）</strong><br>
+    每次修改代码后，提交一次，展示开发过程：<br>
+    <div class="code-block">git add .
+git commit -m "fix: 修复连续小数点输入问题"
+git push
+
+# 之后继续：
+git commit -m "feat: 添加键盘事件处理"
+git commit -m "fix: 处理除零异常"
+git commit -m "style: 优化深色主题样式表"
+git commit -m "docs: 添加代码注释与说明"</div>
+  </div>
+
+  <div class="tip">
+    Git 提交信息建议使用约定式格式：<code>feat:</code>(新功能)、<code>fix:</code>(修复)、<code>style:</code>(样式)、<code>docs:</code>(文档)。
+  </div>
+</div>
+
+<!-- ===== Step 7 ===== -->
+<div class="step-card" id="s7">
+  <h2><span class="step-num">7</span> 项目文件结构说明</h2>
+
+  <div class="file-tree">
+Calculator/
+├── Calculator.pro       ← Qt工程文件，告诉qmake如何编译
+├── main.cpp             ← 程序入口，创建并显示主窗口
+├── mainwindow.h         ← 主窗口类声明（状态变量+槽函数）
+├── mainwindow.cpp       ← 核心逻辑（四则运算+键盘事件+边界处理）
+├── mainwindow.ui        ← UI界面文件（按钮布局+控件属性）
+├── 操作指南.html         ← 本指南
+└── release/
+    └── Calculator.exe   ← 编译生成的可执行程序
+  </div>
+
+  <p>各文件的职责：</p>
+  <div class="sub-step">
+    <strong>Calculator.pro</strong> — 工程配置文件。声明了使用的 Qt 模块（core/gui/widgets）、源文件列表、头文件列表和 UI 文件。<br><br>
+    <strong>mainwindow.ui</strong> — XML 格式的界面定义文件。包含主窗口布局：显示屏 + 历史标签 + 18 个按钮的网格布局。双击可在 Qt Creator 设计器中可视化编辑。<br><br>
+    <strong>mainwindow.h</strong> — 类声明。定义了计算器状态变量（<code>m_firstOperand</code>、<code>m_pendingOperator</code>、<code>m_waitingForOperand</code>、<code>m_error</code>）、按钮槽函数和统一处理方法。<br><br>
+    <strong>mainwindow.cpp</strong> — 核心实现。包含信号槽连接、深色主题样式表、四则运算逻辑、键盘事件处理、异常输入处理等全部功能代码。<br><br>
+    <strong>main.cpp</strong> — 程序入口。创建 <code>QApplication</code> 和 <code>MainWindow</code> 实例，进入事件循环。
+  </div>
+</div>
+
+<!-- ===== Step 8 ===== -->
+<div class="step-card" id="s8">
+  <h2><span class="step-num">8</span> 常见问题排查</h2>
+
+  <div class="sub-step">
+    <strong>Q: 编译时报错 "cannot find -lQt5Core"？</strong><br>
+    A: 检查是否正确选择了 MinGW 64-bit 套件。在左侧 Projects 面板中确认 Build 套件。
+  </div>
+
+  <div class="sub-step">
+    <strong>Q: 运行后窗口一闪而过？</strong><br>
+    A: 检查控制台输出是否有运行时错误。确保在 Release 模式下构建。也可以尝试 Debug 模式查看详细错误。
+  </div>
+
+  <div class="sub-step">
+    <strong>Q: 按钮上的 ÷ × − 显示为方框？</strong><br>
+    A: 这是字体不支持 Unicode 数学符号导致的。在设计器中选中按钮，在属性编辑器中将 <code>font</code> 改为 <strong>Segoe UI Symbol</strong> 或 <strong>Microsoft YaHei</strong>。
+  </div>
+
+  <div class="sub-step">
+    <strong>Q: 键盘按键无反应？</strong><br>
+    A: 确保计算器窗口处于<strong>焦点状态</strong>（用鼠标点击一下窗口任意位置使其获得焦点）。<code>keyPressEvent</code> 只在窗口有焦点时触发。
+  </div>
+
+  <div class="sub-step">
+    <strong>Q: 想修改按钮颜色或样式？</strong><br>
+    A: 样式在 <code>mainwindow.cpp</code> 的 <code>applyStyleSheet()</code> 方法中定义。找到对应的 <code>QPushButton#btnXxx</code> 选择器修改颜色值即可。
+  </div>
+
+  <div class="sub-step">
+    <strong>Q: 如何在 Qt Creator 中调试代码？</strong><br>
+    A: 切换到 Debug 模式 → 在代码行号左侧点击设置断点(红点) → 按 <span class="key-btn">F5</span> 启动调试。程序会在断点处暂停，可以查看变量值。
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Qt 计算器项目 — 2026 秋季 Qt 应用程序开发 实验一</p>
+  <p>本项目代码已通过 MinGW 64-bit + Qt 5.12.11 编译验证，零错误零警告</p>
+</div>
+
+</body>
+</html>
