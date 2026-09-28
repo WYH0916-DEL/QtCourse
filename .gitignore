@@ -1,10 +1,12 @@
 # ===== 构建产物（编译生成的文件，不需要提交）=====
 build/
+build-*/
 debug/
 release/
 *.o
 *.obj
 *.exe
+*.dll
 
 # ===== Qt 自动生成的文件（每次编译会重新生成）=====
 ui_*.h
@@ -17,4 +19,10 @@ Makefile.*
 # ===== 用户个人配置（每台电脑不同，不应共享）=====
 *.user
 *.user.*
+*.pro.user
+*.pro.user.*
 .vscode/
+
+# ===== 其他临时文件 =====
+*.log
+.DS_Store
