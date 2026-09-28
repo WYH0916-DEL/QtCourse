@@ -164,6 +164,8 @@ void MainWindow::handleDigit(const QString &digit)
         m_waitingForOperand = false;
     } else {
         QString current = ui->displayLineEdit->text();
+        // 限制输入长度，防止超长数字撑爆显示屏布局
+        if (current.length() >= 16) return;
         // 显示为 "0" 时用数字替换（避免前导零，如 "05"）
         if (current == "0") {
             ui->displayLineEdit->setText(digit);
