@@ -16,7 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     applyStyleSheet();
     connectButtons();
+    setWindowTitle("计算器 — 支持键盘输入");
     ui->displayLineEdit->setText("0");
+    ui->displayLineEdit->setFocus();
 }
 
 MainWindow::~MainWindow()
