@@ -68,6 +68,13 @@
     <addaction name="separator2"/>
     <addaction name="actionSelectAll"/>
    </widget>
+   <widget class="QMenu" name="menuSearch">
+    <property name="title">
+     <string>搜索(&amp;S)</string>
+    </property>
+    <addaction name="actionFind"/>
+    <addaction name="actionReplace"/>
+   </widget>
    <widget class="QMenu" name="menuFormat">
     <property name="title">
      <string>格式(&amp;O)</string>
@@ -96,6 +103,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuSearch"/>
    <addaction name="menuFormat"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
@@ -122,6 +130,8 @@
    <addaction name="actionCopy"/>
    <addaction name="actionPaste"/>
    <addaction name="separator6"/>
+   <addaction name="actionFind"/>
+   <addaction name="actionReplace"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
@@ -210,6 +220,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>查找(&amp;F)...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionReplace">
+   <property name="text">
+    <string>替换(&amp;R)...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
    </property>
   </action>
   <action name="actionFont">

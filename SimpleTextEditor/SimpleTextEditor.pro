@@ -7,10 +7,19 @@ TEMPLATE = app
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    aboutdialog.cpp \
+    finddialog.cpp \
+    replacedialog.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    aboutdialog.h \
+    finddialog.h \
+    replacedialog.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    aboutdialog.ui \
+    finddialog.ui \
+    replacedialog.ui

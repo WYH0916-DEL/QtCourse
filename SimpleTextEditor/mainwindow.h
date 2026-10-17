@@ -5,6 +5,8 @@
 
 class QPlainTextEdit;
 class QLabel;
+class FindDialog;
+class ReplaceDialog;
 
 namespace Ui {
 class MainWindow;
@@ -41,6 +43,9 @@ private slots:
     void on_actionFontColor_triggered();
     void on_actionBgColor_triggered();
     void on_actionWordWrap_triggered(bool checked);
+    // 搜索
+    void on_actionFind_triggered();
+    void on_actionReplace_triggered();
     // 视图 / 帮助
     void on_actionToolBar_triggered(bool checked);
     void on_actionStatusBar_triggered(bool checked);
@@ -64,6 +69,8 @@ private:
     QPlainTextEdit *m_editor;
     QLabel *posLabel;
     QString curFile;
+    FindDialog *findDlg;
+    ReplaceDialog *replaceDlg;
 };
 
 #endif // MAINWINDOW_H

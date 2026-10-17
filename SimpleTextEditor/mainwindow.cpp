@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "aboutdialog.h"
+#include "finddialog.h"
+#include "replacedialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -14,13 +17,17 @@
 #include <QMimeData>
 #include <QGuiApplication>
 #include <QPlainTextEdit>
+
+#include <QTime>
 #include <QLabel>
 #include <QSettings>
 #include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::MainWindow)
+      ui(new Ui::MainWindow),
+      findDlg(nullptr),
+      replaceDlg(nullptr)
 {
     ui->setupUi(this);
     m_editor = ui->plainTextEdit;
@@ -297,6 +304,28 @@ void MainWindow::updateCursorPosition()
 }
 
 // ---------------------------------------------------------------------------
+// 查找 / 替换
+// ---------------------------------------------------------------------------
+
+void MainWindow::on_actionFind_triggered()
+{
+    if (!findDlg)
+        findDlg = new FindDialog(this);
+    findDlg->show();
+    findDlg->raise();
+    findDlg->activateWindow();
+}
+
+void MainWindow::on_actionReplace_triggered()
+{
+    if (!replaceDlg)
+        replaceDlg = new ReplaceDialog(this);
+    replaceDlg->show();
+    replaceDlg->raise();
+    replaceDlg->activateWindow();
+}
+
+// ---------------------------------------------------------------------------
 // 格式设置
 // ---------------------------------------------------------------------------
 
@@ -369,8 +398,6 @@ void MainWindow::on_actionStatusBar_triggered(bool checked)
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, tr("关于 简单文本编辑器"),
-                       tr("简单文本编辑器 v1.0\n\n"
-                          "Qt 应用程序开发 实验2\n"
-                          "学号：2024414300116  姓名：王祎豪"));
+    AboutDialog dlg(this);
+    dlg.exec();
 }
