@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "codeeditor.h"
 #include "aboutdialog.h"
 #include "finddialog.h"
 #include "replacedialog.h"
@@ -31,6 +32,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     m_editor = ui->plainTextEdit;
+    m_editor->updateLineNumberAreaWidth(0);
+
+    // 当前行高亮与行号刷新
+    connect(m_editor, &CodeEditor::updateRequest,
+            this, [this](const QRect &r, int dy) { m_editor->updateLineNumberArea(r, dy); });
+    connect(m_editor, &QPlainTextEdit::cursorPositionChanged,
+            this, &MainWindow::highlightCurrentLine);
+    connect(m_editor, &QPlainTextEdit::blockCountChanged,
+            this, &MainWindow::updateLineNumberAreaWidth);
 
     // 状态栏光标位置标签
     posLabel = new QLabel(this);
@@ -96,6 +106,10 @@ void MainWindow::loadSettings()
     ui->actionWordWrap->setChecked(wrap);
     m_editor->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
 
+    bool line = s.value("view/lineNumber", true).toBool();
+    ui->actionLineNumber->setChecked(line);
+    m_editor->setLineNumberAreaVisible(line);
+
     bool bar = s.value("view/toolBar", true).toBool();
     ui->actionToolBar->setChecked(bar);
     ui->mainToolBar->setVisible(bar);
@@ -114,6 +128,7 @@ void MainWindow::saveSettings()
     s.setValue("editor/fontColor", m_editor->palette().color(QPalette::Text));
     s.setValue("editor/bgColor", m_editor->palette().color(QPalette::Base));
     s.setValue("view/wrap", ui->actionWordWrap->isChecked());
+    s.setValue("view/lineNumber", ui->actionLineNumber->isChecked());
     s.setValue("view/toolBar", ui->actionToolBar->isChecked());
     s.setValue("view/statusBar", ui->actionStatusBar->isChecked());
     s.setValue("window/geometry", saveGeometry());
@@ -335,6 +350,7 @@ void MainWindow::on_actionFont_triggered()
     QFont font = QFontDialog::getFont(&ok, m_editor->font(), this, tr("选择字体"));
     if (ok) {
         m_editor->setFont(font);
+        m_editor->updateLineNumberAreaWidth(0);
         saveSettings();
     }
 }
@@ -348,6 +364,7 @@ void MainWindow::on_actionFontSize_triggered()
         QFont f = m_editor->font();
         f.setPointSize(size);
         m_editor->setFont(f);
+        m_editor->updateLineNumberAreaWidth(0);
         saveSettings();
     }
 }
@@ -380,6 +397,22 @@ void MainWindow::on_actionWordWrap_triggered(bool checked)
 {
     m_editor->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth
                                       : QPlainTextEdit::NoWrap);
+}
+
+void MainWindow::on_actionLineNumber_triggered(bool checked)
+{
+    m_editor->setLineNumberAreaVisible(checked);
+}
+
+void MainWindow::updateLineNumberAreaWidth(int)
+{
+    // 行号栏宽度 = 位数 * 字符宽度 + 边距，直接调用编辑器自带接口
+    m_editor->updateLineNumberAreaWidth(0);
+}
+
+void MainWindow::highlightCurrentLine()
+{
+    // 简单起见只刷新行号区域，编辑器内部已处理高亮
 }
 
 // ---------------------------------------------------------------------------

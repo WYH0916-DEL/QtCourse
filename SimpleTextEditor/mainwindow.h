@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-class QPlainTextEdit;
+class CodeEditor;
 class QLabel;
 class FindDialog;
 class ReplaceDialog;
@@ -19,6 +19,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    CodeEditor *editor() const { return m_editor; }
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -43,6 +45,7 @@ private slots:
     void on_actionFontColor_triggered();
     void on_actionBgColor_triggered();
     void on_actionWordWrap_triggered(bool checked);
+    void on_actionLineNumber_triggered(bool checked);
     // 搜索
     void on_actionFind_triggered();
     void on_actionReplace_triggered();
@@ -53,6 +56,8 @@ private slots:
 
     void updateCursorPosition();
     void clipboardChanged();
+    void updateLineNumberAreaWidth(int);
+    void highlightCurrentLine();
 
 private:
     void loadSettings();
@@ -66,7 +71,7 @@ private:
     QString shownName() const;
 
     Ui::MainWindow *ui;
-    QPlainTextEdit *m_editor;
+    CodeEditor *m_editor;
     QLabel *posLabel;
     QString curFile;
     FindDialog *findDlg;
