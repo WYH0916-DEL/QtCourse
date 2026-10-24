@@ -2,11 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 
 class CodeEditor;
-class QLabel;
 class FindDialog;
 class ReplaceDialog;
+class QLabel;
 
 namespace Ui {
 class MainWindow;
@@ -39,6 +40,9 @@ private slots:
     void on_actionCopy_triggered();
     void on_actionPaste_triggered();
     void on_actionSelectAll_triggered();
+    // 搜索
+    void on_actionFind_triggered();
+    void on_actionReplace_triggered();
     // 格式
     void on_actionFont_triggered();
     void on_actionFontSize_triggered();
@@ -46,9 +50,7 @@ private slots:
     void on_actionBgColor_triggered();
     void on_actionWordWrap_triggered(bool checked);
     void on_actionLineNumber_triggered(bool checked);
-    // 搜索
-    void on_actionFind_triggered();
-    void on_actionReplace_triggered();
+    void on_actionAutoSave_triggered(bool checked);
     // 视图 / 帮助
     void on_actionToolBar_triggered(bool checked);
     void on_actionStatusBar_triggered(bool checked);
@@ -56,8 +58,7 @@ private slots:
 
     void updateCursorPosition();
     void clipboardChanged();
-    void updateLineNumberAreaWidth(int);
-    void highlightCurrentLine();
+    void autoSaveTick();
 
 private:
     void loadSettings();
@@ -74,6 +75,7 @@ private:
     CodeEditor *m_editor;
     QLabel *posLabel;
     QString curFile;
+    QTimer *autoSaveTimer;
     FindDialog *findDlg;
     ReplaceDialog *replaceDlg;
 };

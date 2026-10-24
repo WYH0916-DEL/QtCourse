@@ -25,3 +25,6 @@ FORMS += \
     aboutdialog.ui \
     finddialog.ui \
     replacedialog.ui
+
+RESOURCES += \
+    resources.qrc

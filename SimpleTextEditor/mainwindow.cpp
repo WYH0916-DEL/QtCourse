@@ -17,12 +17,10 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QGuiApplication>
-#include <QPlainTextEdit>
-
-#include <QTime>
 #include <QLabel>
 #include <QSettings>
 #include <QCloseEvent>
+#include <QTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -32,15 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     m_editor = ui->plainTextEdit;
-    m_editor->updateLineNumberAreaWidth(0);
-
-    // 当前行高亮与行号刷新
-    connect(m_editor, &CodeEditor::updateRequest,
-            this, [this](const QRect &r, int dy) { m_editor->updateLineNumberArea(r, dy); });
-    connect(m_editor, &QPlainTextEdit::cursorPositionChanged,
-            this, &MainWindow::highlightCurrentLine);
-    connect(m_editor, &QPlainTextEdit::blockCountChanged,
-            this, &MainWindow::updateLineNumberAreaWidth);
 
     // 状态栏光标位置标签
     posLabel = new QLabel(this);
@@ -69,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::updateCursorPosition);
     connect(m_editor->document(), &QTextDocument::modificationChanged,
             this, &QWidget::setWindowModified);
+
+    // 定时自动保存
+    autoSaveTimer = new QTimer(this);
+    autoSaveTimer->setInterval(60 * 1000);
+    connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSaveTick);
 
     loadSettings();
     setCurrentFile(QString());
@@ -118,6 +112,11 @@ void MainWindow::loadSettings()
     ui->actionStatusBar->setChecked(st);
     statusBar()->setVisible(st);
 
+    bool as = s.value("file/autoSave", false).toBool();
+    ui->actionAutoSave->setChecked(as);
+    if (as)
+        autoSaveTimer->start();
+
     restoreGeometry(s.value("window/geometry").toByteArray());
 }
 
@@ -131,6 +130,7 @@ void MainWindow::saveSettings()
     s.setValue("view/lineNumber", ui->actionLineNumber->isChecked());
     s.setValue("view/toolBar", ui->actionToolBar->isChecked());
     s.setValue("view/statusBar", ui->actionStatusBar->isChecked());
+    s.setValue("file/autoSave", ui->actionAutoSave->isChecked());
     s.setValue("window/geometry", saveGeometry());
 }
 
@@ -220,6 +220,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QString text = in.readAll();
+
     m_editor->setPlainText(text);
     QApplication::restoreOverrideCursor();
 
@@ -404,15 +405,23 @@ void MainWindow::on_actionLineNumber_triggered(bool checked)
     m_editor->setLineNumberAreaVisible(checked);
 }
 
-void MainWindow::updateLineNumberAreaWidth(int)
+void MainWindow::on_actionAutoSave_triggered(bool checked)
 {
-    // 行号栏宽度 = 位数 * 字符宽度 + 边距，直接调用编辑器自带接口
-    m_editor->updateLineNumberAreaWidth(0);
+    if (checked)
+        autoSaveTimer->start();
+    else
+        autoSaveTimer->stop();
+    statusBar()->showMessage(checked ? tr("定时自动保存已开启（60 秒）")
+                                     : tr("定时自动保存已关闭"), 3000);
 }
 
-void MainWindow::highlightCurrentLine()
+void MainWindow::autoSaveTick()
 {
-    // 简单起见只刷新行号区域，编辑器内部已处理高亮
+    if (m_editor->document()->isModified() && !curFile.isEmpty()) {
+        if (saveFile(curFile))
+            statusBar()->showMessage(tr("已于 %1 自动保存")
+                                     .arg(QTime::currentTime().toString("HH:mm:ss")), 3000);
+    }
 }
 
 // ---------------------------------------------------------------------------
