@@ -217,9 +217,18 @@ void MainWindow::loadFile(const QString &fileName)
 
     QTextStream in(&data);
     in.setAutoDetectUnicode(true);  // 自动识别带 BOM 的 UTF-16/32 文件
+    in.setCodec("UTF-8");           // 其余情况按 UTF-8 解码
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QString text = in.readAll();
+
+    // 若出现替换字符，说明不是 UTF-8 编码，回退到系统本地编码再解一次，
+    // 避免用 GBK 等本地编码保存的文件被误读成乱码
+    if (text.contains(QChar(0xFFFD))) {
+        QTextStream in2(&data);
+        in2.setAutoDetectUnicode(true);
+        text = in2.readAll();
+    }
 
     m_editor->setPlainText(text);
     QApplication::restoreOverrideCursor();
@@ -287,8 +296,8 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    saveSettings();
     if (maybeSave()) {
+        saveSettings();
         event->accept();
     } else {
         event->ignore();
