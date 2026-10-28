@@ -428,6 +428,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    // 字母 C 快速清除，与常用计算器习惯一致
+    if (text == "c" || text == "C") {
+        handleClear();
+        return;
+    }
+
     // 其他按键交给基类处理
     QMainWindow::keyPressEvent(event);
 }
