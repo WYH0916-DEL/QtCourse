@@ -245,11 +245,7 @@ void MainWindow::handleEquals()
     }
 
     // === 执行四则运算 ===
-    double result = 0;
-    if      (m_pendingOperator == "+") result = m_firstOperand + secondOperand;
-    else if (m_pendingOperator == "-") result = m_firstOperand - secondOperand;
-    else if (m_pendingOperator == "*") result = m_firstOperand * secondOperand;
-    else if (m_pendingOperator == "/") result = m_firstOperand / secondOperand;
+    double result = calculate(m_firstOperand, m_pendingOperator, secondOperand);
 
     // 更新历史显示：如 "5 + 3 ="
     updateHistory(formatNumber(m_firstOperand), opToSymbol(m_pendingOperator),
@@ -292,6 +288,16 @@ void MainWindow::handleBackspace()
 
 // ==================== 辅助方法 ====================
 
+// 四则运算核心，handleEquals 和 performCalculation 共用，避免重复分支
+double MainWindow::calculate(double a, const QString &op, double b) const
+{
+    if      (op == "+") return a + b;
+    else if (op == "-") return a - b;
+    else if (op == "*") return a * b;
+    else if (op == "/") return a / b;
+    return 0;
+}
+
 double MainWindow::displayValue() const
 {
     return ui->displayLineEdit->text().toDouble();
@@ -331,11 +337,7 @@ void MainWindow::performCalculation()
         return;
     }
 
-    double result = 0;
-    if      (m_pendingOperator == "+") result = m_firstOperand + secondOperand;
-    else if (m_pendingOperator == "-") result = m_firstOperand - secondOperand;
-    else if (m_pendingOperator == "*") result = m_firstOperand * secondOperand;
-    else if (m_pendingOperator == "/") result = m_firstOperand / secondOperand;
+    double result = calculate(m_firstOperand, m_pendingOperator, secondOperand);
 
     m_firstOperand = result;
     setDisplay(result);

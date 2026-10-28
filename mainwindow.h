@@ -46,6 +46,8 @@ private:
     void handleBackspace();
     void handleDecimal();
 
+    double calculate(double a, const QString &op, double b) const;
+
     double displayValue() const;
     void setDisplay(double value);
     void setDisplay(const QString &text);
